@@ -5,7 +5,8 @@ export type TaskQueryServiceInput = {
 export type TaskQueryServicePayload = {
   id: string;
   title: string;
-  done: boolean;
+  ownerId: string;
+  progressStatus: string;
 };
 
 export interface TaskQueryServiceInterface {

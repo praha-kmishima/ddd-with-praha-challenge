@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import type {
   TodoListQueryServiceInterface,
   TodoListQueryServicePayload,
@@ -16,9 +15,9 @@ export class PostgresqlTodoListQueryService
       .select({
         id: tasks.id,
         title: tasks.title,
-        done: tasks.done,
+        ownerId: tasks.ownerId,
+        progressStatus: tasks.progressStatus,
       })
-      .from(tasks)
-      .where(eq(tasks.done, false));
+      .from(tasks);
   }
 }
