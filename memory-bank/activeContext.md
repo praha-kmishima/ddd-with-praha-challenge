@@ -19,9 +19,13 @@
   - EnrollmentStatus値オブジェクトの実装
   - TeamName値オブジェクトの実装
   - ProgressStatus値オブジェクトの実装
+- チーム集約の基本実装
+  - TeamMemberエンティティの実装
+  - Teamエンティティの実装
+  - TeamRepositoryインターフェースの定義
 
 ### 現在取り組んでいる課題
-- チーム集約の実装準備
+- チームリポジトリの実装（PostgreSQL）
 
 ## 最近の変更点
 
