@@ -16,10 +16,10 @@
 - 値オブジェクトの基盤
   - Result型の実装（成功/失敗を表現する型）
   - EmailAddress値オブジェクトの実装
+  - EnrollmentStatus値オブジェクトの実装
 
 ### 現在取り組んでいる課題
 - 値オブジェクトの実装
-  - EnrollmentStatus値オブジェクトの実装
   - TeamName値オブジェクトの実装
   - ProgressStatus値オブジェクトの実装
 - チーム集約の実装準備
@@ -46,12 +46,15 @@
 - EmailAddress値オブジェクトの実装完了
   - バリデーションロジックの実装
   - テストケースの作成と実行
+- EnrollmentStatus値オブジェクトの実装完了
+  - 在籍状態の値と遷移ルールの管理
+  - チーム所属可能性の判定
+  - テストケースの作成と実行
 
 ## 次のステップ
 
 ### 短期的な目標
 1. **値オブジェクトの実装**
-   - EnrollmentStatus値オブジェクトの実装
    - TeamName値オブジェクトの実装
    - ProgressStatus値オブジェクトの実装
 
@@ -101,6 +104,7 @@
    - 不変性を持つクラスとして実装
    - ファクトリメソッドでバリデーションを行い、Result型で結果を返す
    - 等価性比較のためのequalsメソッドを実装
+   - 状態遷移ルールを持つ値オブジェクトはcanTransitionToメソッドを実装
 
 3. **リポジトリの実装方針**
    - インターフェースをドメイン層で定義
@@ -130,8 +134,8 @@
 ## 現在の課題と懸念事項
 
 1. **Value Objectの実装**
-   - EmailAddress値オブジェクトの実装は完了
-   - 残りの値オブジェクト（EnrollmentStatus, TeamName, ProgressStatus）の実装が必要
+   - EmailAddressとEnrollmentStatus値オブジェクトの実装は完了
+   - 残りの値オブジェクト（TeamName, ProgressStatus）の実装が必要
 
 2. **Nominal Typing**
    - TypeScriptの構造的型システムでは、同じプロパティを持つ型が等価になってしまう
