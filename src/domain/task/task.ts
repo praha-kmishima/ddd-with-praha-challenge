@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { ulid } from "../../libs/ulid";
+import { DomainEvents } from "../event";
 import { ProgressStatus } from "../shared/progress-status";
 import { type Result, err, ok } from "../shared/result";
+import { TaskCreatedEvent, TaskProgressChangedEvent } from "./events";
 
 export class Task {
   readonly #id: string;
@@ -35,6 +37,16 @@ export class Task {
       this.#title = this.titleSchema.parse(props.title);
       this.#progressStatus = ProgressStatus.NOT_STARTED;
       this.#ownerId = props.ownerId;
+
+      // イベント発行
+      DomainEvents.publish(
+        new TaskCreatedEvent(
+          this.#id,
+          this.#title,
+          this.#ownerId,
+          this.#progressStatus,
+        ),
+      );
     }
   }
 
@@ -84,7 +96,22 @@ export class Task {
       );
     }
 
+    // 前の状態を保存
+    const previousStatus = this.#progressStatus;
+
+    // 状態を更新
     this.#progressStatus = newStatus;
+
+    // イベント発行
+    DomainEvents.publish(
+      new TaskProgressChangedEvent(
+        this.#id,
+        this.#ownerId,
+        previousStatus,
+        newStatus,
+      ),
+    );
+
     return ok(undefined);
   }
 }
