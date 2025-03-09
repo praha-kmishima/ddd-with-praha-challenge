@@ -1,7 +1,9 @@
 import { ulid } from "../../libs/ulid";
+import { DomainEvents } from "../event";
 import type { EnrollmentStatus } from "../shared/enrollment-status";
 import { type Result, err, ok } from "../shared/result";
 import type { TeamName } from "../shared/team-name";
+import { MemberAddedEvent, TeamCreatedEvent } from "./events";
 import type { TeamMember } from "./team-member";
 
 /**
@@ -27,13 +29,16 @@ export class Team {
   public static create(props: {
     name: TeamName;
   }): Result<Team, Error> {
-    return ok(
-      new Team(
-        ulid(),
-        props.name,
-        [], // 初期状態ではメンバーは空
-      ),
+    const team = new Team(
+      ulid(),
+      props.name,
+      [], // 初期状態ではメンバーは空
     );
+
+    // イベント発行
+    DomainEvents.publish(new TeamCreatedEvent(team.id, props.name));
+
+    return ok(team);
   }
 
   /**
@@ -109,6 +114,17 @@ export class Team {
       this.members.pop();
       return err(validateResult.error);
     }
+
+    // イベント発行
+    DomainEvents.publish(
+      new MemberAddedEvent(
+        this.id,
+        member.getId(),
+        member.getName(),
+        member.getEmail(),
+        member.getStatus(),
+      ),
+    );
 
     return ok(undefined);
   }
