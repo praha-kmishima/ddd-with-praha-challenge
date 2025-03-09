@@ -137,6 +137,38 @@ type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
 - テスト可能性を設計に組み込む
 - アサートファースト：期待結果から逆算
 
+### モックの作成方針
+
+- **インターフェースに集中**：モックはインターフェースの振る舞いのみを模倣し、内部実装の詳細は模倣しない
+- **シンプルな実装**：モックは最小限の機能を提供し、テストに必要な振る舞いのみを実装する
+- **状態のリセット**：各テスト前にモックの状態をリセットして、テスト間の依存関係を排除する
+- **テスト用データ構造**：インメモリのデータ構造（Map, Set等）を活用して、永続化層をシミュレート
+- **エラー状態のテスト**：正常系だけでなく、エラー状態も適切にテストできるようにモックを設計
+
+```typescript
+// モックリポジトリの例
+class MockTeamRepository implements TeamRepository {
+  private teams = new Map<string, Team>();
+  
+  // 状態のリセット
+  reset(): void {
+    this.teams.clear();
+  }
+  
+  // インターフェースの実装
+  async save(team: Team): Promise<Result<void, Error>> {
+    this.teams.set(team.getId(), team);
+    return ok(undefined);
+  }
+  
+  async findById(id: string): Promise<Result<Team | null, Error>> {
+    return ok(this.teams.get(id) || null);
+  }
+  
+  // その他のメソッド...
+}
+```
+
 
 ## Node.js/TypeScript の使い方について
 
