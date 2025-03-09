@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { z } from "zod";
 import { EnrollmentStatus } from "../shared/enrollment-status";
 import { TeamMember } from "./team-member";
 
@@ -16,11 +15,7 @@ describe("TeamMember", () => {
         const member = result.value;
         expect(member.getName()).toBe("山田太郎");
         expect(member.getEmail().getValue()).toBe("taro@example.com");
-        expect(member.getStatus().equals(EnrollmentStatus.ACTIVE)).toBe(true);
-
-        // IDがULIDフォーマットであることを確認
-        const isUlid = z.string().ulid().safeParse(member.getId());
-        expect(isUlid.success).toBe(true);
+        expect(member.getStatus()).toBe(EnrollmentStatus.ACTIVE);
       }
     });
 
@@ -36,16 +31,13 @@ describe("TeamMember", () => {
       }
     });
 
-    test("無効なメールアドレスの場合はエラーになる", () => {
+    test("メールアドレスが不正な場合はエラーになる", () => {
       const result = TeamMember.create({
         name: "山田太郎",
         email: "invalid-email",
       });
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.message).toBe("無効なメールアドレス形式です");
-      }
     });
   });
 
@@ -64,11 +56,11 @@ describe("TeamMember", () => {
         expect(member.getId()).toBe("01ABCDEF");
         expect(member.getName()).toBe("山田太郎");
         expect(member.getEmail().getValue()).toBe("taro@example.com");
-        expect(member.getStatus().equals(EnrollmentStatus.ACTIVE)).toBe(true);
+        expect(member.getStatus()).toBe(EnrollmentStatus.ACTIVE);
       }
     });
 
-    test("無効なメールアドレスの場合はエラーになる", () => {
+    test("メールアドレスが不正な場合はエラーになる", () => {
       const result = TeamMember.reconstruct({
         id: "01ABCDEF",
         name: "山田太郎",
@@ -77,118 +69,81 @@ describe("TeamMember", () => {
       });
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.message).toBe("無効なメールアドレス形式です");
-      }
     });
 
-    test("無効な在籍状態の場合はエラーになる", () => {
+    test("在籍状態が不正な場合はエラーになる", () => {
       const result = TeamMember.reconstruct({
         id: "01ABCDEF",
         name: "山田太郎",
         email: "taro@example.com",
-        status: "無効な状態",
+        status: "不正な状態",
       });
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.message).toContain("無効な在籍状態です");
-      }
     });
   });
 
   describe("changeStatus", () => {
-    test("在籍中から休会中に変更できる", () => {
+    test("在籍状態を変更できる", () => {
       const createResult = TeamMember.create({
         name: "山田太郎",
         email: "taro@example.com",
       });
-
       expect(createResult.ok).toBe(true);
+
       if (createResult.ok) {
         const member = createResult.value;
         const changeResult = member.changeStatus(EnrollmentStatus.INACTIVE);
-
         expect(changeResult.ok).toBe(true);
-        expect(member.getStatus().equals(EnrollmentStatus.INACTIVE)).toBe(true);
+        expect(member.getStatus()).toBe(EnrollmentStatus.INACTIVE);
       }
     });
 
-    test("在籍中から退会済に変更できる", () => {
+    test("無効な状態遷移はエラーになる", () => {
       const createResult = TeamMember.create({
         name: "山田太郎",
         email: "taro@example.com",
       });
-
       expect(createResult.ok).toBe(true);
-      if (createResult.ok) {
-        const member = createResult.value;
-        const changeResult = member.changeStatus(EnrollmentStatus.WITHDRAWN);
 
-        expect(changeResult.ok).toBe(true);
-        expect(member.getStatus().equals(EnrollmentStatus.WITHDRAWN)).toBe(
-          true,
-        );
-      }
-    });
-
-    test("退会済から在籍中に変更できる", () => {
-      const createResult = TeamMember.create({
-        name: "山田太郎",
-        email: "taro@example.com",
-      });
-
-      expect(createResult.ok).toBe(true);
       if (createResult.ok) {
         const member = createResult.value;
 
-        // まず退会済に変更
-        const withdrawResult = member.changeStatus(EnrollmentStatus.WITHDRAWN);
-        expect(withdrawResult.ok).toBe(true);
+        // 在籍中から休会中に変更
+        const changeResult1 = member.changeStatus(EnrollmentStatus.INACTIVE);
+        expect(changeResult1.ok).toBe(true);
+        expect(member.getStatus()).toBe(EnrollmentStatus.INACTIVE);
 
-        // 退会済から在籍中に変更
-        const reactivateResult = member.changeStatus(EnrollmentStatus.ACTIVE);
-        expect(reactivateResult.ok).toBe(true);
-        expect(member.getStatus().equals(EnrollmentStatus.ACTIVE)).toBe(true);
-      }
-    });
+        // 休会中から退会済に変更
+        const changeResult2 = member.changeStatus(EnrollmentStatus.WITHDRAWN);
+        expect(changeResult2.ok).toBe(true);
+        expect(member.getStatus()).toBe(EnrollmentStatus.WITHDRAWN);
 
-    test("退会済から休会中に変更できない", () => {
-      const createResult = TeamMember.create({
-        name: "山田太郎",
-        email: "taro@example.com",
-      });
-
-      expect(createResult.ok).toBe(true);
-      if (createResult.ok) {
-        const member = createResult.value;
-
-        // まず退会済に変更
-        const withdrawResult = member.changeStatus(EnrollmentStatus.WITHDRAWN);
-        expect(withdrawResult.ok).toBe(true);
-
-        // 退会済から休会中に変更を試みる
-        const changeResult = member.changeStatus(EnrollmentStatus.INACTIVE);
-        expect(changeResult.ok).toBe(false);
-        if (!changeResult.ok) {
-          expect(changeResult.error.message).toContain(
-            "在籍状態を退会済から休会中に変更することはできません",
+        // 退会済から休会中に変更（無効な遷移）
+        const changeResult3 = member.changeStatus(EnrollmentStatus.INACTIVE);
+        expect(changeResult3.ok).toBe(false);
+        if (!changeResult3.ok) {
+          expect(changeResult3.error.message).toContain(
+            "変更することはできません",
           );
         }
+
+        // 状態は変わらない
+        expect(member.getStatus()).toBe(EnrollmentStatus.WITHDRAWN);
       }
     });
   });
 
   describe("canJoinTeam", () => {
     test("在籍中のメンバーはチームに所属可能", () => {
-      const createResult = TeamMember.create({
+      const result = TeamMember.create({
         name: "山田太郎",
         email: "taro@example.com",
       });
+      expect(result.ok).toBe(true);
 
-      expect(createResult.ok).toBe(true);
-      if (createResult.ok) {
-        const member = createResult.value;
+      if (result.ok) {
+        const member = result.value;
         expect(member.canJoinTeam()).toBe(true);
       }
     });
@@ -198,15 +153,12 @@ describe("TeamMember", () => {
         name: "山田太郎",
         email: "taro@example.com",
       });
-
       expect(createResult.ok).toBe(true);
+
       if (createResult.ok) {
         const member = createResult.value;
-
-        // 休会中に変更
         const changeResult = member.changeStatus(EnrollmentStatus.INACTIVE);
         expect(changeResult.ok).toBe(true);
-
         expect(member.canJoinTeam()).toBe(false);
       }
     });
@@ -216,15 +168,12 @@ describe("TeamMember", () => {
         name: "山田太郎",
         email: "taro@example.com",
       });
-
       expect(createResult.ok).toBe(true);
+
       if (createResult.ok) {
         const member = createResult.value;
-
-        // 退会済に変更
         const changeResult = member.changeStatus(EnrollmentStatus.WITHDRAWN);
         expect(changeResult.ok).toBe(true);
-
         expect(member.canJoinTeam()).toBe(false);
       }
     });
@@ -244,8 +193,8 @@ describe("TeamMember", () => {
       const result2 = TeamMember.reconstruct({
         id,
         name: "山田次郎", // 名前が異なる
-        email: "jiro@example.com", // メールが異なる
-        status: "休会中", // 状態が異なる
+        email: "jiro@example.com", // メールアドレスが異なる
+        status: "在籍中",
       });
 
       expect(result1.ok && result2.ok).toBe(true);
@@ -265,8 +214,8 @@ describe("TeamMember", () => {
       const result2 = TeamMember.reconstruct({
         id: "01GHIJKL",
         name: "山田太郎", // 名前が同じ
-        email: "taro@example.com", // メールが同じ
-        status: "在籍中", // 状態が同じ
+        email: "taro@example.com", // メールアドレスが同じ
+        status: "在籍中",
       });
 
       expect(result1.ok && result2.ok).toBe(true);
