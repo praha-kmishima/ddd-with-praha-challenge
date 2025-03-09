@@ -34,7 +34,10 @@ createTaskController.post(
   async (context) => {
     const body = context.req.valid("json");
 
-    const payload = await context.var.createTaskUseCase.invoke(body);
+    const payload = await context.var.createTaskUseCase.invoke({
+      title: body.title,
+      ownerId: "1",
+    });
     return context.json(payload);
   },
 );
