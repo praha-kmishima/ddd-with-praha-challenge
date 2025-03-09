@@ -1,10 +1,13 @@
 import { z } from "zod";
 import { ulid } from "../../libs/ulid";
+import { ProgressStatus } from "../shared/progress-status";
+import { type Result, err, ok } from "../shared/result";
 
 export class Task {
   readonly #id: string;
   #title: string;
-  #isDone: boolean;
+  #progressStatus: ProgressStatus;
+  readonly #ownerId: string;
 
   private readonly titleSchema = z
     .string()
@@ -12,17 +15,26 @@ export class Task {
     .max(100, "title must be less than 100 characters");
 
   public constructor(
-    props: { title: string } | { id: string; title: string; done: boolean },
+    props:
+      | { title: string; ownerId: string }
+      | {
+          id: string;
+          title: string;
+          progressStatus: ProgressStatus;
+          ownerId: string;
+        },
   ) {
     const fromData = "id" in props;
     if (fromData) {
       this.#id = props.id;
       this.#title = props.title;
-      this.#isDone = props.done;
+      this.#progressStatus = props.progressStatus;
+      this.#ownerId = props.ownerId;
     } else {
       this.#id = ulid();
       this.#title = this.titleSchema.parse(props.title);
-      this.#isDone = false;
+      this.#progressStatus = ProgressStatus.NOT_STARTED;
+      this.#ownerId = props.ownerId;
     }
   }
 
@@ -34,15 +46,45 @@ export class Task {
     return this.#title;
   }
 
-  public get isDone() {
-    return this.#isDone;
+  public get progressStatus() {
+    return this.#progressStatus;
+  }
+
+  public get ownerId() {
+    return this.#ownerId;
   }
 
   public edit(title: string) {
     this.#title = this.titleSchema.parse(title);
   }
 
-  public makeAsDone() {
-    this.#isDone = true;
+  /**
+   * 進捗ステータスを変更する
+   * @param newStatus 新しい進捗ステータス
+   * @param requesterId リクエスト者のID
+   * @returns 変更結果
+   */
+  public changeProgressStatus(
+    newStatus: ProgressStatus,
+    requesterId: string,
+  ): Result<void, Error> {
+    // 所有者チェック
+    if (this.#ownerId !== requesterId) {
+      return err(
+        new Error("タスクの進捗ステータスを変更できるのは所有者のみです"),
+      );
+    }
+
+    // 状態遷移チェック
+    if (!this.#progressStatus.canTransitionTo(newStatus)) {
+      return err(
+        new Error(
+          `進捗ステータスを${this.#progressStatus.getValue()}から${newStatus.getValue()}に変更することはできません`,
+        ),
+      );
+    }
+
+    this.#progressStatus = newStatus;
+    return ok(undefined);
   }
 }
