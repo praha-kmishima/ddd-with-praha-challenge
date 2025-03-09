@@ -3,7 +3,12 @@ import { DomainEvents } from "../event";
 import type { EnrollmentStatus } from "../shared/enrollment-status";
 import { type Result, err, ok } from "../shared/result";
 import type { TeamName } from "../shared/team-name";
-import { MemberAddedEvent, TeamCreatedEvent } from "./events";
+import {
+  MemberAddedEvent,
+  MemberRemovedEvent,
+  MemberStatusChangedEvent,
+  TeamCreatedEvent,
+} from "./events";
 import type { TeamMember } from "./team-member";
 
 /**
@@ -157,6 +162,15 @@ export class Team {
       return err(validateResult.error);
     }
 
+    // イベント発行
+    DomainEvents.publish(
+      new MemberRemovedEvent(
+        this.id,
+        removedMember.getId(),
+        removedMember.getName(),
+      ),
+    );
+
     return ok(undefined);
   }
 
@@ -182,11 +196,25 @@ export class Team {
       return err(new Error("メンバーの取得に失敗しました"));
     }
 
+    // 変更前の状態を保存
+    const previousStatus = member.getStatus();
+
     // メンバーの在籍状態を変更
     const changeResult = member.changeStatus(newStatus);
     if (!changeResult.ok) {
       return err(changeResult.error);
     }
+
+    // イベント発行
+    DomainEvents.publish(
+      new MemberStatusChangedEvent(
+        this.id,
+        member.getId(),
+        member.getName(),
+        previousStatus,
+        newStatus,
+      ),
+    );
 
     // 在籍状態が「在籍中」でなくなった場合、チームから削除
     if (!member.canJoinTeam()) {
