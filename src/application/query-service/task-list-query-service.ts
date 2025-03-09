@@ -1,7 +1,8 @@
 export type TaskListQueryServicePayload = Array<{
   id: string;
   title: string;
-  done: boolean;
+  ownerId: string;
+  progressStatus: string;
 }>;
 
 export interface TaskListQueryServiceInterface {
