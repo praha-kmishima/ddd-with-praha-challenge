@@ -3,7 +3,8 @@ import { boolean, pgTable, varchar } from "drizzle-orm/pg-core";
 export const tasks = pgTable("tasks", {
   id: varchar("id").notNull(),
   title: varchar("title").notNull(),
-  done: boolean("done").notNull(),
+  ownerId: varchar("owner_id").notNull(),
+  progressStatus: varchar("progress_status").notNull(),
 });
 
 // チームテーブル
