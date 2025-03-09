@@ -1,6 +1,4 @@
 import { and, eq, sql } from "drizzle-orm";
-import { EmailAddress } from "../../domain/shared/email-address";
-import { EnrollmentStatus } from "../../domain/shared/enrollment-status";
 import { type Result, err, ok } from "../../domain/shared/result";
 import { TeamName } from "../../domain/shared/team-name";
 import { Team } from "../../domain/team/team";
