@@ -8,6 +8,8 @@ import {
   MemberRemovedEvent,
   MemberStatusChangedEvent,
   TeamCreatedEvent,
+  TeamOversizedEvent,
+  TeamUndersizedEvent,
 } from "./events";
 import type { TeamMember } from "./team-member";
 
@@ -237,12 +239,17 @@ export class Team {
     }
 
     // チームサイズが1の場合は許容（メンバー追加時など）
+    // ただし、1名の場合はTeamUndersizedEventを発行
     if (size === 1) {
+      // イベント発行
+      DomainEvents.publish(new TeamUndersizedEvent(this.id, this.name, size));
       return ok(undefined);
     }
 
     // チームサイズが4名を超える場合はエラー
     if (size > 4) {
+      // イベント発行
+      DomainEvents.publish(new TeamOversizedEvent(this.id, this.name, size));
       return err(new Error("チームのサイズは4名以下である必要があります"));
     }
 
