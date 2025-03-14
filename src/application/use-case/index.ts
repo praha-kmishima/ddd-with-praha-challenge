@@ -10,3 +10,4 @@ export * from "./add-team-member-use-case";
 export * from "./remove-team-member-use-case";
 export * from "./change-team-member-status-use-case";
 export * from "./get-team-by-id-use-case";
+export * from "./get-team-by-name-use-case";
