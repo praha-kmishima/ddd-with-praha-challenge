@@ -6,6 +6,7 @@ import { editTaskTitleController } from "./presentation/task/edit-task-title-con
 import { getTaskController } from "./presentation/task/get-task-controller";
 import { getTaskListController } from "./presentation/task/get-task-list-controller";
 import { setTaskDoneController } from "./presentation/task/set-task-done-controller";
+import { updateTaskProgressController } from "./presentation/task/update-task-progress-controller";
 
 const app = new Hono();
 
@@ -14,6 +15,7 @@ app.route("/", getTaskListController);
 app.route("/", createTaskController);
 app.route("/", editTaskTitleController);
 app.route("/", setTaskDoneController);
+app.route("/", updateTaskProgressController);
 
 const port = 3000;
 console.log(`Server is running on port ${port}`);
