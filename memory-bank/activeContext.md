@@ -80,14 +80,22 @@
 
 ### 短期的な目標
 
-1. **ユースケースの更新と拡張**
+1. **APIエンドポイントの実装**
+   - 未実装のAPIエンドポイントの実装（docs/APIエンドポイント実装計画.mdに詳細を記載）
+   - 優先順位：
+     1. UpdateTaskProgressController
+     2. CreateTeamController
+     3. AddTeamMemberController
+     4. RemoveTeamMemberController
+     5. ChangeTeamMemberStatusController
+
+2. **ユースケースの更新と拡張**
    - 既存のタスク関連ユースケースの更新
    - チーム関連のユースケースの実装
    - 課題関連の新しいユースケースの実装
 
 ### 中期的な目標
 
-- API エンドポイントの実装
 - 複雑なビジネスルールの実装（メール通知機能など）
 - クエリ最適化とパフォーマンス改善
 
