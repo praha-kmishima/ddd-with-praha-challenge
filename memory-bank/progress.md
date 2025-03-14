@@ -67,15 +67,20 @@
 
 ## 次に実装予定の機能
 
+### API エンドポイントの実装
+
+- ❌ タスク関連の API エンドポイント
+  - ❌ UpdateTaskProgressController（優先度：高）
+- ❌ チーム関連の API エンドポイント
+  - ❌ CreateTeamController（優先度：高）
+  - ❌ AddTeamMemberController（優先度：高）
+  - ❌ RemoveTeamMemberController（優先度：中）
+  - ❌ ChangeTeamMemberStatusController（優先度：中）
+
 ### ユースケースの更新と拡張（続き）
 
 - ❌ チーム関連のユースケースの実装
 - ❌ 課題関連の新しいユースケースの実装
-
-### API エンドポイントの実装
-
-- ❌ チーム関連の API エンドポイント
-- ❌ 課題関連の API エンドポイント
 
 ## 既知の問題
 
