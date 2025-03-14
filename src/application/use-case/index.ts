@@ -8,3 +8,4 @@ export * from "./update-task-progress-use-case";
 export * from "./create-team-use-case";
 export * from "./add-team-member-use-case";
 export * from "./remove-team-member-use-case";
+export * from "./change-team-member-status-use-case";
