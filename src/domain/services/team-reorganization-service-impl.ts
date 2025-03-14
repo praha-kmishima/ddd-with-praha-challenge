@@ -91,23 +91,23 @@ export class TeamReorganizationServiceImpl implements TeamReorganizationService 
 
   /**
    * チームを分割する
-   * @param oversizedTeam 分割対象のチーム（通常は5名以上のチーム）
+   * @param team 分割対象のチーム（4名のチームのみ分割可能）
    * @returns 分割結果
    */
-  async splitTeam(oversizedTeam: Team): Promise<Result<Team[], Error>> {
+  async splitTeam(team: Team): Promise<Result<Team[], Error>> {
     // 前提条件のチェック
-    // 1. oversizedTeamのメンバー数が4名を超えていること
-    const members = oversizedTeam.getMembers();
-    if (members.length <= 4) {
+    // チームサイズが4名であることを確認
+    const members = team.getMembers();
+    if (members.length !== 4) {
       return err(
         new Error(
-          `チームサイズが分割条件を満たしていません（${members.length}名）`,
+          `チームサイズが分割条件を満たしていません（${members.length}名、4名である必要があります）`,
         ),
       );
     }
 
-    // 2. 新しいチーム名を生成
-    const originalName = oversizedTeam.getName().getValue();
+    // 新しいチーム名を生成
+    const originalName = team.getName().getValue();
     const newTeamNameResult = TeamName.create(`${originalName}-2`);
     if (!newTeamNameResult.ok) {
       return err(
@@ -117,7 +117,7 @@ export class TeamReorganizationServiceImpl implements TeamReorganizationService 
       );
     }
 
-    // 3. 新しいチームを作成
+    // 新しいチームを作成
     const newTeamResult = Team.create({
       name: newTeamNameResult.value,
     });
@@ -130,13 +130,11 @@ export class TeamReorganizationServiceImpl implements TeamReorganizationService 
     }
     const newTeam = newTeamResult.value;
 
-    // 4. メンバーの分配
-    // 分配アルゴリズム: メンバーを均等に分配
-    // 例: 5名の場合、元のチームに3名、新しいチームに2名
-    const halfSize = Math.floor(members.length / 2);
-    const membersToMove = members.slice(0, halfSize);
+    // メンバーの分配
+    // 分配アルゴリズム: メンバーを均等に分配（4名の場合、各チーム2名ずつ）
+    const membersToMove = members.slice(0, 2);
 
-    // 5. 新しいチームにメンバーを追加
+    // 新しいチームにメンバーを追加
     for (const member of membersToMove) {
       const addResult = newTeam.addMember(member);
       if (!addResult.ok) {
@@ -148,9 +146,9 @@ export class TeamReorganizationServiceImpl implements TeamReorganizationService 
       }
     }
 
-    // 6. 元のチームからメンバーを削除
+    // 元のチームからメンバーを削除
     for (const member of membersToMove) {
-      const removeResult = oversizedTeam.removeMember(member.getId());
+      const removeResult = team.removeMember(member.getId());
       if (!removeResult.ok) {
         return err(
           new Error(
@@ -160,8 +158,8 @@ export class TeamReorganizationServiceImpl implements TeamReorganizationService 
       }
     }
 
-    // 7. 両方のチームを保存
-    const saveOriginalResult = await this.teamRepository.save(oversizedTeam);
+    // 両方のチームを保存
+    const saveOriginalResult = await this.teamRepository.save(team);
     if (!saveOriginalResult.ok) {
       return err(
         new Error(
@@ -179,6 +177,6 @@ export class TeamReorganizationServiceImpl implements TeamReorganizationService 
       );
     }
 
-    return ok([oversizedTeam, newTeam]);
+    return ok([team, newTeam]);
   }
 }

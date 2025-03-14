@@ -1,6 +1,4 @@
 import { describe, expect, test, vi, beforeEach } from "vitest";
-import { EmailAddress } from "../../shared/email-address";
-import { EnrollmentStatus } from "../../shared/enrollment-status";
 import { TeamName } from "../../shared/team-name";
 import { Team } from "../../team/team";
 import { TeamMember } from "../../team/team-member";
@@ -200,72 +198,73 @@ describe("TeamReorganizationServiceImpl", () => {
   });
 
   describe("splitTeam", () => {
-    test("チームを分割できること", async () => {
-      // 準備
-      const member1 = createTeamMember("メンバー1", "member1@example.com");
-      const member2 = createTeamMember("メンバー2", "member2@example.com");
-      const member3 = createTeamMember("メンバー3", "member3@example.com");
-      const member4 = createTeamMember("メンバー4", "member4@example.com");
-      const member5 = createTeamMember("メンバー5", "member5@example.com");
+    test("4人チームを分割できること", async () => {
+      // 準備: 4人チームを作成
+      const member1 = createTeamMember("Member1", "member1@example.com");
+      const member2 = createTeamMember("Member2", "member2@example.com");
+      const member3 = createTeamMember("Member3", "member3@example.com");
+      const member4 = createTeamMember("Member4", "member4@example.com");
 
-      // 通常サイズのチームを作成
-      const originalTeam = createTeam("OriginalTeam", [member1, member2, member3]);
-      const newTeam = createTeam("OriginalTeamTwo", [member4, member5]);
-
-      // TeamReorganizationServiceImplのsplitTeamメソッドをモック化
-      const originalSplitTeam = service.splitTeam;
-      service.splitTeam = vi.fn().mockResolvedValue(ok([originalTeam, newTeam]));
-
-      // リポジトリのsaveメソッドをスパイ
-      const saveSpy = vi.spyOn(mockRepository, "save");
-
-      try {
-        // 実行
-        const result = await service.splitTeam(originalTeam);
-
-        // 検証
-        expect(result.ok).toBe(true);
-        if (result.ok && result.value.length >= 2) {
-          const splitOriginalTeam = result.value[0];
-          const splitNewTeam = result.value[1];
-          
-          // 両方のチームが存在することを確認
-          expect(splitOriginalTeam).toBeDefined();
-          expect(splitNewTeam).toBeDefined();
-          
-          if (splitOriginalTeam && splitNewTeam) {
-            expect(splitOriginalTeam.getMembers().length).toBe(3);
-            expect(splitNewTeam.getMembers().length).toBe(2);
-            expect(splitNewTeam.getName().getValue()).toBe("OriginalTeamTwo");
-          }
-        }
-      } finally {
-        // モックを元に戻す
-        service.splitTeam = originalSplitTeam;
-      }
-    });
-
-    test("4名以下のチームを分割しようとした場合はエラーを返すこと", async () => {
-      // 準備
-      const member1 = createTeamMember("メンバー1", "member1@example.com");
-      const member2 = createTeamMember("メンバー2", "member2@example.com");
-      const member3 = createTeamMember("メンバー3", "member3@example.com");
-      const member4 = createTeamMember("メンバー4", "member4@example.com");
-
-      const team = createTeam("NormalTeam", [
+      const team = createTeam("TeamFour", [
         member1,
         member2,
         member3,
         member4,
       ]);
 
-      // 実行
-      const result = await service.splitTeam(team);
+      // TeamName.createをモック
+      const originalTeamNameCreate = TeamName.create;
+      TeamName.create = vi.fn().mockReturnValue(ok({ getValue: () => "TeamFourTwo" } as any));
 
-      // 検証
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.message).toContain("チームサイズが分割条件を満たしていません");
+      // リポジトリのsaveメソッドをモック
+      mockRepository.save = vi.fn().mockResolvedValue(ok(undefined));
+
+      try {
+        // 実行
+        const result = await service.splitTeam(team);
+
+        // 検証
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.value.length).toBe(2);
+          
+          const splitTeam1 = result.value[0];
+          const splitTeam2 = result.value[1];
+          
+          // 両方のチームが存在することを確認
+          expect(splitTeam1).toBeDefined();
+          expect(splitTeam2).toBeDefined();
+          
+          if (splitTeam1 && splitTeam2) {
+            expect(splitTeam1.getMembers().length).toBe(2);
+            expect(splitTeam2.getMembers().length).toBe(2);
+          }
+        }
+        
+        // saveメソッドが2回呼ばれたことを確認（元のチームと新しいチーム）
+        expect(mockRepository.save).toHaveBeenCalledTimes(2);
+      } finally {
+        // モックを元に戻す
+        TeamName.create = originalTeamNameCreate;
+      }
+    });
+
+    test("4人未満のチームを分割しようとした場合はエラーを返すこと", async () => {
+      // 準備: 3人チーム
+      const smallTeam = createTeam("SmallTeam", [
+        createTeamMember("Member1", "member1@example.com"),
+        createTeamMember("Member2", "member2@example.com"),
+        createTeamMember("Member3", "member3@example.com"),
+      ]);
+
+      // 実行: 3人チーム
+      const smallTeamResult = await service.splitTeam(smallTeam);
+
+      // 検証: 3人チーム
+      expect(smallTeamResult.ok).toBe(false);
+      if (!smallTeamResult.ok) {
+        expect(smallTeamResult.error.message).toContain("チームサイズが分割条件を満たしていません");
+        expect(smallTeamResult.error.message).toContain("4名である必要があります");
       }
     });
   });
