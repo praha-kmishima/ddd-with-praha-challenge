@@ -3,7 +3,7 @@ import type {
   TeamOversizedEvent,
   TeamUndersizedEvent,
 } from "../../domain/team/events";
-import type { TeamReorganizationService } from "../../domain/team/team-reorganization-service";
+import type { TeamReorganizationService } from "../../domain/services/team-reorganization-service";
 import type { TeamRepository } from "../../domain/team/team-repository";
 
 /**
