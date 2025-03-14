@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import type { TeamByNameQueryServiceInterface } from "../team-by-name-query-service";
 
 /**
