@@ -12,6 +12,7 @@
     "build": "vite build",
     "start": "node dist/index.mjs",
     "lint": "biome ci .",
+    "lint:fix": "biome check --apply .",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "type-check": "tsc --pretty --noEmit",
