@@ -8,6 +8,7 @@ import { getTaskListController } from "./presentation/task/get-task-list-control
 import { setTaskDoneController } from "./presentation/task/set-task-done-controller";
 import { updateTaskProgressController } from "./presentation/task/update-task-progress-controller";
 import { addTeamMemberController } from "./presentation/team/add-team-member-controller";
+import { changeTeamMemberStatusController } from "./presentation/team/change-team-member-status-controller";
 import { createTeamController } from "./presentation/team/create-team-controller";
 import { removeTeamMemberController } from "./presentation/team/remove-team-member-controller";
 
@@ -22,6 +23,7 @@ app.route("/", updateTaskProgressController);
 app.route("/", addTeamMemberController);
 app.route("/", createTeamController);
 app.route("/", removeTeamMemberController);
+app.route("/", changeTeamMemberStatusController);
 
 const port = 3000;
 console.log(`Server is running on port ${port}`);
