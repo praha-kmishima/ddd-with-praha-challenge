@@ -37,26 +37,15 @@
 - TeamReorganizationPolicy の実装
 - イベントハンドラーの基本実装
 
+### チーム再編成サービスの実装 ✅
+
+- TeamReorganizationServiceImpl の実装
+- チーム統合アルゴリズムの実装
+- チーム分割アルゴリズムの実装
+
 ## 進行中の機能
 
-### チーム再編成サービスの実装
-
-- ❌ TeamReorganizationService の具体的な実装
-- ❌ チーム統合アルゴリズムの実装
-- ❌ チーム分割アルゴリズムの実装
-
 ## 次に実装予定の機能
-
-### チーム再編成サービスの実装
-
-- ❌ TeamReorganizationService の具体的な実装
-- ❌ チーム統合アルゴリズムの実装
-- ❌ チーム分割アルゴリズムの実装
-
-### TaskManagementPolicy の実装
-
-- ❌ 参加者の状態変更に伴う課題の処理
-- ❌ MemberStatusChangedEvent、MemberRemovedEvent の購読
 
 ### ユースケースの更新と拡張
 
@@ -107,9 +96,9 @@
 
    - タスク完了状態変更ユースケースは進捗ステータス更新ユースケースに置き換える必要がある
 
-5. **TeamReorganizationService の実装**
-   - 複雑なチーム統合・分割アルゴリズムの実装が必要
-   - エッジケースの適切な処理が必要
+5. **既存ユースケースの最適化**
+   - 既存のユースケースの効率化と改善が必要
+   - エラーハンドリングの強化が必要
 
 ## 実装計画（スモールステップ）
 
@@ -150,13 +139,13 @@
    - イベントハンドラーの基本実装
    - 単体テスト
 
-### マイルストーン 5: ドメインサービスの実装
+### マイルストーン 5: ドメインサービスの実装 ✅
 
 - TeamReorganizationService の実装（チーム統合・分割アルゴリズム）
 
 ### マイルストーン 6: アプリケーション層のポリシー実装 ✅
 
-- TeamReorganizationPolicy、TaskManagementPolicy の実装
+- TeamReorganizationPolicy の実装
 
 ### マイルストーン 7: ユースケースの実装
 

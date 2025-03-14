@@ -1,5 +1,5 @@
 import type { Result } from "../shared/result";
-import type { Team } from "./team";
+import type { Team } from "../team/team";
 
 /**
  * チーム再編サービス
