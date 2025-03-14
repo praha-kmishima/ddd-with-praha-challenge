@@ -55,7 +55,14 @@
 - ⚠️ 既存のタスク関連ユースケースの更新
   - ✅ UpdateTaskProgressUseCaseの実装
   - ❌ コントローラーの実装
-- ❌ チーム関連のユースケースの実装
+- ⚠️ チーム関連のユースケースの実装
+  - ✅ CreateTeamUseCaseの実装
+  - ❌ AddTeamMemberUseCaseの実装
+  - ❌ RemoveTeamMemberUseCaseの実装
+  - ❌ ChangeTeamMemberStatusUseCaseの実装
+  - ❌ GetTeamByIdUseCaseの実装
+  - ❌ GetTeamByNameUseCaseの実装
+  - ❌ GetAllTeamsUseCaseの実装
 - ❌ 課題関連の新しいユースケースの実装
 
 ## 次に実装予定の機能
