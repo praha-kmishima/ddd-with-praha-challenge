@@ -47,11 +47,6 @@
 
 ## 次に実装予定の機能
 
-### TaskManagementPolicy の実装
-
-- ❌ 参加者の状態変更に伴う課題の処理
-- ❌ MemberStatusChangedEvent、MemberRemovedEvent の購読
-
 ### ユースケースの更新と拡張
 
 - ❌ 既存のタスク関連ユースケースの更新
@@ -101,9 +96,9 @@
 
    - タスク完了状態変更ユースケースは進捗ステータス更新ユースケースに置き換える必要がある
 
-5. **TaskManagementPolicy の実装**
-   - 参加者の状態変更に伴う課題の処理の実装が必要
-   - MemberStatusChangedEvent、MemberRemovedEvent の購読の実装が必要
+5. **既存ユースケースの最適化**
+   - 既存のユースケースの効率化と改善が必要
+   - エラーハンドリングの強化が必要
 
 ## 実装計画（スモールステップ）
 
@@ -150,7 +145,7 @@
 
 ### マイルストーン 6: アプリケーション層のポリシー実装 ✅
 
-- TeamReorganizationPolicy、TaskManagementPolicy の実装
+- TeamReorganizationPolicy の実装
 
 ### マイルストーン 7: ユースケースの実装
 

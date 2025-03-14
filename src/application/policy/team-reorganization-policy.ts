@@ -1,9 +1,9 @@
 import { type DomainEvent, DomainEvents } from "../../domain/event";
+import type { TeamReorganizationService } from "../../domain/services/team-reorganization-service";
 import type {
   TeamOversizedEvent,
   TeamUndersizedEvent,
 } from "../../domain/team/events";
-import type { TeamReorganizationService } from "../../domain/services/team-reorganization-service";
 import type { TeamRepository } from "../../domain/team/team-repository";
 
 /**
@@ -83,7 +83,7 @@ export class TeamReorganizationPolicy {
 
         // 最も人数が少ないチームを選択
         const targetTeam = targetTeams[0];
-        
+
         // この時点でtargetTeamは必ず存在する
         if (!targetTeam) {
           console.error(
@@ -97,9 +97,10 @@ export class TeamReorganizationPolicy {
           console.log(
             `[TeamReorganizationPolicy] Target team ${targetTeam.getId()} has 4 members, splitting required`,
           );
-          
+
           // チーム分割処理の実行
-          const splitResult = await this.teamReorganizationService.splitTeam(targetTeam);
+          const splitResult =
+            await this.teamReorganizationService.splitTeam(targetTeam);
           if (!splitResult.ok) {
             console.error(
               `[TeamReorganizationPolicy] Failed to split team: ${splitResult.error.message}`,
@@ -107,33 +108,34 @@ export class TeamReorganizationPolicy {
             // TODO: 管理者への通知
             return;
           }
-          
+
           // 分割後の最も小さいチームを選択
-          const newTargetTeams = splitResult.value
-            .sort((a, b) => a.getMembers().length - b.getMembers().length);
-          
+          const newTargetTeams = splitResult.value.sort(
+            (a, b) => a.getMembers().length - b.getMembers().length,
+          );
+
           if (newTargetTeams.length === 0) {
             console.error(
               "[TeamReorganizationPolicy] No teams returned after splitting",
             );
             return;
           }
-          
+
           const newTargetTeam = newTargetTeams[0];
-          
+
           if (!newTargetTeam) {
             console.error(
               "[TeamReorganizationPolicy] New target team is unexpectedly undefined",
             );
             return;
           }
-          
+
           // 統合処理の実行
           const mergeResult = await this.teamReorganizationService.mergeTeams(
             undersizedTeam,
-            newTargetTeam
+            newTargetTeam,
           );
-          
+
           if (!mergeResult.ok) {
             console.error(
               `[TeamReorganizationPolicy] Failed to merge teams after splitting: ${mergeResult.error.message}`,
@@ -141,7 +143,7 @@ export class TeamReorganizationPolicy {
             // TODO: 管理者への通知
             return;
           }
-          
+
           console.log(
             `[TeamReorganizationPolicy] Successfully split team ${targetTeam.getId()} and merged team ${event.teamId} into team ${newTargetTeam.getId()}`,
           );
@@ -152,7 +154,7 @@ export class TeamReorganizationPolicy {
             undersizedTeam,
             targetTeam,
           );
-          
+
           if (!mergeResult.ok) {
             console.error(
               `[TeamReorganizationPolicy] Failed to merge teams: ${mergeResult.error.message}`,
@@ -160,7 +162,7 @@ export class TeamReorganizationPolicy {
             // TODO: 管理者への通知
             return;
           }
-          
+
           console.log(
             `[TeamReorganizationPolicy] Successfully merged team ${event.teamId} into team ${targetTeam.getId()}`,
           );

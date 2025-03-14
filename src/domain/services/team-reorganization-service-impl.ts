@@ -1,14 +1,16 @@
 import { type Result, err, ok } from "../shared/result";
+import { TeamName } from "../shared/team-name";
 import { Team } from "../team/team";
 import type { TeamRepository } from "../team/team-repository";
-import { TeamReorganizationService } from "./team-reorganization-service";
-import { TeamName } from "../shared/team-name";
+import type { TeamReorganizationService } from "./team-reorganization-service";
 
 /**
  * チーム再編成サービスの実装
  * チームの統合や分割などの複雑なアルゴリズムを提供する
  */
-export class TeamReorganizationServiceImpl implements TeamReorganizationService {
+export class TeamReorganizationServiceImpl
+  implements TeamReorganizationService
+{
   constructor(private readonly teamRepository: TeamRepository) {}
 
   /**

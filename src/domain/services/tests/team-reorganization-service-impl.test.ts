@@ -1,9 +1,10 @@
-import { describe, expect, test, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { type Result, ok } from "../../shared/result";
 import { TeamName } from "../../shared/team-name";
+import type { TeamRepository } from "../../team";
 import { Team } from "../../team/team";
 import { TeamMember } from "../../team/team-member";
 import { TeamReorganizationServiceImpl } from "../team-reorganization-service-impl";
-import { type Result, ok } from "../../shared/result";
 
 // モックリポジトリの実装
 class MockTeamRepository {
@@ -88,7 +89,9 @@ function createTeamMember(name: string, email: string): TeamMember {
 function createTeam(name: string, members: TeamMember[] = []): Team {
   const teamNameResult = TeamName.create(name);
   if (!teamNameResult.ok) {
-    throw new Error(`Failed to create team name: ${teamNameResult.error.message}`);
+    throw new Error(
+      `Failed to create team name: ${teamNameResult.error.message}`,
+    );
   }
 
   const teamResult = Team.create({ name: teamNameResult.value });
@@ -100,7 +103,9 @@ function createTeam(name: string, members: TeamMember[] = []): Team {
   for (const member of members) {
     const addResult = team.addMember(member);
     if (!addResult.ok) {
-      throw new Error(`Failed to add member to team: ${addResult.error.message}`);
+      throw new Error(
+        `Failed to add member to team: ${addResult.error.message}`,
+      );
     }
   }
 
@@ -111,7 +116,7 @@ describe("TeamReorganizationServiceImpl", () => {
   // テスト用のモックリポジトリとサービスを準備
   const mockRepository = new MockTeamRepository();
   const service = new TeamReorganizationServiceImpl(
-    mockRepository as any, // TypeScriptの型エラーを回避するためにanyを使用
+    mockRepository as unknown as TeamRepository, // TypeScriptの型エラーを回避するためにanyを使用
   );
 
   // 各テスト前にリポジトリをリセット
@@ -161,7 +166,9 @@ describe("TeamReorganizationServiceImpl", () => {
       // 検証
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error.message).toContain("統合後のチームサイズが制限を超えます");
+        expect(result.error.message).toContain(
+          "統合後のチームサイズが制限を超えます",
+        );
       }
     });
 
@@ -205,16 +212,13 @@ describe("TeamReorganizationServiceImpl", () => {
       const member3 = createTeamMember("Member3", "member3@example.com");
       const member4 = createTeamMember("Member4", "member4@example.com");
 
-      const team = createTeam("TeamFour", [
-        member1,
-        member2,
-        member3,
-        member4,
-      ]);
+      const team = createTeam("TeamFour", [member1, member2, member3, member4]);
 
       // TeamName.createをモック
       const originalTeamNameCreate = TeamName.create;
-      TeamName.create = vi.fn().mockReturnValue(ok({ getValue: () => "TeamFourTwo" } as any));
+      TeamName.create = vi
+        .fn()
+        .mockReturnValue(ok({ getValue: () => "TeamFourTwo" } as TeamName));
 
       // リポジトリのsaveメソッドをモック
       mockRepository.save = vi.fn().mockResolvedValue(ok(undefined));
@@ -227,20 +231,20 @@ describe("TeamReorganizationServiceImpl", () => {
         expect(result.ok).toBe(true);
         if (result.ok) {
           expect(result.value.length).toBe(2);
-          
+
           const splitTeam1 = result.value[0];
           const splitTeam2 = result.value[1];
-          
+
           // 両方のチームが存在することを確認
           expect(splitTeam1).toBeDefined();
           expect(splitTeam2).toBeDefined();
-          
+
           if (splitTeam1 && splitTeam2) {
             expect(splitTeam1.getMembers().length).toBe(2);
             expect(splitTeam2.getMembers().length).toBe(2);
           }
         }
-        
+
         // saveメソッドが2回呼ばれたことを確認（元のチームと新しいチーム）
         expect(mockRepository.save).toHaveBeenCalledTimes(2);
       } finally {
@@ -263,8 +267,12 @@ describe("TeamReorganizationServiceImpl", () => {
       // 検証: 3人チーム
       expect(smallTeamResult.ok).toBe(false);
       if (!smallTeamResult.ok) {
-        expect(smallTeamResult.error.message).toContain("チームサイズが分割条件を満たしていません");
-        expect(smallTeamResult.error.message).toContain("4名である必要があります");
+        expect(smallTeamResult.error.message).toContain(
+          "チームサイズが分割条件を満たしていません",
+        );
+        expect(smallTeamResult.error.message).toContain(
+          "4名である必要があります",
+        );
       }
     });
   });
