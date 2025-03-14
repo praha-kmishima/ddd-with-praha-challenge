@@ -57,7 +57,7 @@
   - ❌ コントローラーの実装
 - ⚠️ チーム関連のユースケースの実装
   - ✅ CreateTeamUseCaseの実装
-  - ❌ AddTeamMemberUseCaseの実装
+  - ✅ AddTeamMemberUseCaseの実装
   - ❌ RemoveTeamMemberUseCaseの実装
   - ❌ ChangeTeamMemberStatusUseCaseの実装
   - ❌ GetTeamByIdUseCaseの実装
