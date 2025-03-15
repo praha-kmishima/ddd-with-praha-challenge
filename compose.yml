@@ -15,6 +15,34 @@ services:
       - 5432:5432
     volumes:
       - database-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=database
+    ports:
+      - 3000:3000
+    volumes:
+      - ./src:/app/src
+    networks:
+      - app-network
+    command: ["pnpm", "run", "dev"]
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   database-data:

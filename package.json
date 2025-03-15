@@ -18,7 +18,14 @@
     "type-check": "tsc --pretty --noEmit",
     "migration:generate": "drizzle-kit generate",
     "migration:apply": "drizzle-kit migrate",
-    "migration:drop": "drizzle-kit drop"
+    "migration:drop": "drizzle-kit drop",
+    "seed": "vite-node src/libs/drizzle/seed/index.ts",
+    "db:reset": "drizzle-kit drop && drizzle-kit migrate && pnpm run seed",
+    "db:seed": "pnpm run seed",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose build",
+    "init": "bash scripts/init.sh"
   },
   "dependencies": {
     "@hono/node-server": "1.13.8",
