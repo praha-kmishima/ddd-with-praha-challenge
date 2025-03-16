@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: {
     target: "esnext",
+    outDir: "dist",
     lib: {
       entry: path.resolve(import.meta.dirname, "./src/index.ts"),
       fileName: () => "index.mjs",
@@ -17,5 +18,9 @@ export default defineConfig({
         ...builtinModules.map((module) => `node:${module}`),
       ],
     },
+  },
+  server: {
+    host: "0.0.0.0",
+    port: 3000,
   },
 });
