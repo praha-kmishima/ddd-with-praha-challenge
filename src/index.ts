@@ -6,6 +6,7 @@ import { updateTaskProgressController } from "./presentation/task/update-task-pr
 import { addTeamMemberController } from "./presentation/team/add-team-member-controller";
 import { changeTeamMemberStatusController } from "./presentation/team/change-team-member-status-controller";
 import { createTeamController } from "./presentation/team/create-team-controller";
+import { getAllTeamMembersController } from "./presentation/team/get-all-team-members-controller";
 import { getTeamByNameController } from "./presentation/team/get-team-by-name-controller";
 import { getTeamController } from "./presentation/team/get-team-controller";
 import { removeTeamMemberController } from "./presentation/team/remove-team-member-controller";
@@ -18,6 +19,7 @@ app.route("/", createTeamController);
 app.route("/", getTeamController);
 app.route("/", getTeamByNameController);
 app.route("/", getTasksByOwnerIdController);
+app.route("/", getAllTeamMembersController);
 app.route("/", removeTeamMemberController);
 app.route("/", updateTaskProgressController);
 
